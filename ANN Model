@@ -1,0 +1,369 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "private_outputs": true,
+      "provenance": [],
+      "authorship_tag": "ABX9TyP0G/3cOl5TMTNAZg79vHwJ",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/priyanshisharma919346-del/Priya/blob/priyanshisharma919346-del-patch-1/ANN%20Model\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "CIz0zfKSXVgw"
+      },
+      "outputs": [],
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "from sklearn.model_selection import train_test_split"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data = pd.read_csv(\"/content/powerplant_data.csv\")"
+      ],
+      "metadata": {
+        "id": "zbRwNMC9XfEm"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data.head()"
+      ],
+      "metadata": {
+        "id": "zLk3S5UmXjTo"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "X = data.drop(\"PE\", axis=1)\n",
+        "Y = data[\"PE\"]\n"
+      ],
+      "metadata": {
+        "id": "SOh_UO7BX0TQ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "Y.head()"
+      ],
+      "metadata": {
+        "id": "WfC3l9GdYIcK"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# split out data\n",
+        "X_train, X_test, Y_train, Y_test = train_test_split(\n",
+        "    X,Y, test_size=0.2, random_state=42)"
+      ],
+      "metadata": {
+        "id": "4MH1LaYJYECT"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Scaled the data\n",
+        "from sklearn.preprocessing import StandardScaler\n",
+        "scaler = StandardScaler()\n",
+        "X_train_scaled = scaler.fit_transform(X_train)\n",
+        "X_test_scaled = scaler.transform(X_test)"
+      ],
+      "metadata": {
+        "id": "i-znIlNGabM-"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# convert the data tensor with help of pytorch\n",
+        "import torch\n",
+        "import torch as nn\n",
+        "\n",
+        "X_train_tensor = torch.tensor(X_train_scaled, dtype= torch.float32)\n",
+        "X_test_tensor = torch.tensor(X_test_scaled, dtype= torch.float32)\n",
+        "\n",
+        "Y_train_tensor = torch.tensor(Y_train.values, dtype= torch.float32).view(-1,1)\n",
+        "Y_test_tensor = torch.tensor(Y_test.values, dtype= torch.float32).view(-1,1)\n",
+        "\n",
+        "# view means data will convert 2D array\n",
+        "# this data will store in RAM"
+      ],
+      "metadata": {
+        "id": "0xfxGYXXbi4W"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "type(X_test_tensor)"
+      ],
+      "metadata": {
+        "id": "ZfzftN0dfCYu"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from torch.utils.data import TensorDataset, DataLoader\n",
+        "\n",
+        "train_dataset = TensorDataset(X_train_tensor, Y_train_tensor)\n",
+        "test_dataset = TensorDataset(X_test_tensor, Y_test_tensor)\n",
+        "\n",
+        "train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)\n",
+        "test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)"
+      ],
+      "metadata": {
+        "id": "7bhHzzsWivUB"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import torch.nn as nn\n",
+        "\n",
+        "# Built an ANN model\n",
+        "class ANN(nn.Module):\n",
+        "   def __init__(self):\n",
+        "    super(ANN,self).__init__()\n",
+        "\n",
+        "    self.model = nn.Sequential(\n",
+        "      # 1st hidden layer\n",
+        "      nn.Linear(X_train.shape[1],6),  # ,is use for seprate the funcation\n",
+        "      nn.ReLU(),\n",
+        "\n",
+        "     # 2nd hidden layer\n",
+        "      nn.Linear(6,6),\n",
+        "      nn.ReLU(),\n",
+        "\n",
+        "      # 3rd output layer\n",
+        "      nn.Linear(6,1),\n",
+        "      nn.ReLU()\n",
+        "    )\n",
+        "\n",
+        "   def forward(self, x):\n",
+        "     return self.model(x)"
+      ],
+      "metadata": {
+        "collapsed": true,
+        "id": "JO5xzMFEm10P"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Optimization\n",
+        "import torch.optim as optim\n",
+        "\n",
+        "model = ANN()\n",
+        "\n",
+        "# loss and optimizer\n",
+        "crietrion = nn.MSELoss()\n",
+        "optimizer = optim.Adam(model.parameters())"
+      ],
+      "metadata": {
+        "id": "k2zzPZK9qikC"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Here we train the data with help of many funcation and activation and loss and also validate the data with test data\n",
+        "# The train of ANN\n",
+        "train_losses = []\n",
+        "val_losses = []\n",
+        "best_loss = float(\"inf\")\n",
+        "epochs = 100\n",
+        "\n",
+        "for epoch in range(epochs):\n",
+        "  model.train()\n",
+        "  running_loss = 0.0 # total training batch for 1 epoch\n",
+        "\n",
+        "  for xb,yb in train_loader:\n",
+        "    # xb feature of 1 batch\n",
+        "    # yb label of batch\n",
+        "    optimizer.zero_grad() # reset all the previsious gradient\n",
+        "\n",
+        "    outputs = model(xb) # forward propagation... predicted output for this batch\n",
+        "    loss = crietrion(outputs,yb) # compute loss\n",
+        "    loss.backward()  # backward propagation.. compute the gradients\n",
+        "    optimizer.step() # parameter update\n",
+        "\n",
+        "    running_loss += loss.item()\n",
+        "  epoch_train_loss = running_loss/len(train_loader)\n",
+        "  train_losses.append(epoch_train_loss)\n",
+        "\n",
+        "  # Validation of Losses\n",
+        "  model.eval() # Set model to evaluation mode\n",
+        "\n",
+        "  with torch.no_grad(): # no gradient compute\n",
+        "\n",
+        "    running_val_loss = 0.0 # total validation loss for 1 epoch\n",
+        "    for xb,yb in test_loader:\n",
+        "      # xb feature of 1 batch\n",
+        "      # yb label of batch\n",
+        "\n",
+        "      outputs = model(xb) # forward prpagation... predicted output for this batch\n",
+        "      loss = crietrion(outputs,yb) # compute loss\n",
+        "\n",
+        "      running_val_loss += loss.item()\n",
+        "    epoch_val_loss = running_val_loss/len(test_loader)\n",
+        "    val_losses.append(epoch_val_loss)\n",
+        "\n",
+        "  print(f\"epochs {epoch +1}/{epochs})===>>> train loss{epoch_train_loss} & validate {epoch_val_loss}\")\n",
+        "\n",
+        "  if epoch_val_loss < best_loss:\n",
+        "    best_loss = epoch_val_loss\n",
+        "    torch.save(model.state_dict(), \"best_model.pt\") # .pt and .pth and also here we save the parameter\n",
+        "    # of this file of best model it will use future purpose"
+      ],
+      "metadata": {
+        "collapsed": true,
+        "id": "zhsegIEAvQY_"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import matplotlib.pyplot as plt\n",
+        "\n",
+        "Loss_df = pd.DataFrame({\"train_loss\":train_losses,\n",
+        "              \"validation_loss\":val_losses})\n",
+        "\n",
+        "plt.figure(figsize=(10,6))\n",
+        "plt.plot(Loss_df[\"train_loss\"], label=\"train_loss\")\n",
+        "plt.plot(Loss_df[\"validation_loss\"], label=\"validation_loss\")\n",
+        "\n",
+        "plt.xlabel(\"Epochs\")\n",
+        "plt.ylabel(\"Loss\")\n",
+        "plt.legend()\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "2wJJJFN43vgq"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#load the best model and also put this data in archetechure\n",
+        "model.load_state_dict(torch.load(\"/content/best_model.pt\"))\n",
+        "\n",
+        "# means <All keys matched successfully> data successfully load in archetechure and also create the ANN model"
+      ],
+      "metadata": {
+        "id": "VklV8j2KMrrN"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Evaluation the Model\n",
+        "model.eval() # Set model to evaluation mode\n",
+        "with torch.no_grad(): # no gradient compute\n",
+        "  train_pred = model(X_train_tensor)\n",
+        "  test_pred = model(X_test_tensor)\n",
+        "\n",
+        "  train_MSE_loss = crietrion(train_pred,X_train_tensor) # compute loss\n",
+        "  test_MSE_loss = crietrion(test_pred,X_test_tensor) # compute loss\n",
+        "\n",
+        "  print(f\"Train MSE Loss: {train_MSE_loss.item()}\")\n",
+        "  print(f\"Test MSE Loss: {test_MSE_loss.item()}\")"
+      ],
+      "metadata": {
+        "collapsed": true,
+        "id": "jzKjc75fNQjm"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.metrics import mean_squared_error, r2_score\n",
+        "\n",
+        "print(\"MSE Loss:\", mean_squared_error(Y_test,test_pred))\n",
+        "print(\"MSE Loss:\", mean_squared_error(Y_train,train_pred))\n",
+        "\n",
+        "print(\"R^2 score:\", r2_score(Y_test,test_pred))\n",
+        "print(\"R^2 score:\", r2_score(Y_train,train_pred))\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "g-8gky_gQAMM"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# here we convert the dataframe to show the value\n",
+        "predicted = pd.DataFrame(test_pred.numpy(),columns=[\"Predicted Value\"])\n",
+        "Acctual = pd.DataFrame(Y_test.values, columns=[\"Actual Value\"])\n",
+        "pd.concat([predicted,Acctual], axis=1)"
+      ],
+      "metadata": {
+        "id": "OQjPqojDRJWW"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
