@@ -1,0 +1,24 @@
+# 🏥 Medical Insurance Cost Prediction using Linear Regression
+
+An end-to-end Data Science project built in Python to predict individual medical insurance charges based on demographic and health indicators (Age, BMI, Smoking Habits, Region, etc.).
+
+---
+
+## 🛠️ Tech Stack & Tools
+- **Language:** Python
+- **Libraries:** Pandas, NumPy, Scikit-learn, Matplotlib, Seaborn
+- **Algorithm:** Multiple Linear Regression
+- **Environment:** Google Colab / Jupyter Notebook
+
+---
+
+## 🚀 Key Steps & Workflow
+1. **Exploratory Data Analysis (EDA):** Visualized distribution of charges, correlation matrices, and key feature impacts (e.g., smoker status vs. medical costs).
+2. **Data Preprocessing & Feature Encoding:** Handled categorical variables (sex, smoker, region) using One-Hot / Label Encoding.
+3. **Model Building & Evaluation:** Trained a Multiple Linear Regression model using `train_test_split` and evaluated performance metrics (R² score, Mean Absolute Error).
+
+---
+
+## 📈 Key Findings & Insights
+- **Smoker Status:** Found to be the single highest predictor of medical costs.
+- **Age & BMI:** Showed a strong positive correlation with increased insurance premiums.
